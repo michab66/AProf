@@ -1,0 +1,641 @@
+*
+* Version History: AProf
+*
+* Internal material! :)
+*
+* TopSecret! :)
+*
+
+WICHTIG:
+   Bei nächstem Release darf die Release Version nicht mehr
+   geändert werden! (Am besten mit Symboltabelle linken und auf die
+   Archivdiskette spielen)
+
+
+TODO:
+   -Bestimmte Hunks koennen nicht gelesen werden (z.B. mit ATOM bearbeitete)
+   -AProf-Einstellungen sollten von wählbarer Datei geladen werden können
+   -Default Stack sollte mit Grösse von AProfs Stack initialisiert werden
+   -*ENTRY* sollte sofort erscheinen, wenn das ursprüngliche Symbol für
+    den Codeeintritt verschwindet.
+   -Umsetzung auf MaxonC++ sollte auch mal erfolgen.
+   -Iconize Funktion
+   -Angezeigte Werte wählbar machen.
+
+
+V3.361            : 16. Dezember 1994 : Binz
+   Neu:
+      Bei Ausführung von TxtClear() wird der Text nicht mehr frei-
+      gegeben, sondern nur die Positionszähler zurückgesetzt.
+      Dies bedeutet, daß der allokierte Speicherbereich für einen
+      Textblock nie kleiner wird, und das bei einem neuerstellen
+      des Textes keine realloc()'s mehr benötigt werden.
+
+V3.36             : 17. November 1994 : Binz
+   Neu:
+      Hunks, die mit Speicherattributen CHIP oder FAST belegt
+      waren, können jetzt geladen werden.
+
+
+V3.35             : 26. Oktober 1994 : Binz
+   Neu:
+      Und wieder mal probiere ich die Umsetzung nach Maxon
+      C++. Bis jetzt nur kleinere Änderungen für Casts, ein
+      Bug in realloc() behoben , einer in SetGadgetAttrs()
+      behoben. printf() gibt keine negative Zahl zurück wenn
+      diw Ausgabe nicht geklappt hat -> Bug in Druckfunktion.
+
+      Sonstige Tests laufen vielversprechend. Eine ganze
+      Menge von Programmen konnte mit dem Profiler untersucht
+      werden. Allerdings gibt es auch Kandidaten wie flex oder
+      clisp, die mit AProf 3.34.Manx liefen und jetzt nicht
+      mehr funktionieren.
+
+
+V3.34             : 28. September 1994 : Binz
+   Neu:
+      Beim Start von Workbench wird das Consolefenster mit den
+      Attributen AUTO und CLOSE geöffnet.
+   Sonstiges:
+      Released am 24. Oktober über Wouter van Oortmeer
+      dto.        28. Oktober Aminet
+   Bugs:
+      Möglicherweise in Assemblermodulen p3trap.asm oder
+      p3xseglist.asm Fehler. Tritt nur bei bestimmten Profilees
+      auf. Absturz wg. Adressfehler.
+      Aufruf von Funktionen durch jmp wird nicht festgestellt.
+
+
+V3.33             ; 28. September 1994 : Binz
+   Fix:
+      Die folgenden Fehler habe ich mit Mungwall aufgespürt.
+      Fehler in p3exec.c behoben: Bei Ausgabe der Kommandozeile
+      in Shellfenster erfolgte Zugriff auf NULL.
+      Fehler in p3load.c/OptSymList() behoben. Zugriff auf NULL erfolgte.
+      Komplett neu implementiert, da diese Funktion nicht zu
+      retten war :).
+
+
+V3.32             : 26. September 1994 : Binz
+   Fix:
+      Fehler in dsp.c/idspRefreshWin() behoben. Wenn kein Text vorhanden
+      war, erfolgte Zugriff auf NULL. Meldung von Wouter.
+
+
+V3.31             : 10. August 1994 : Binz
+   Neu:
+      Die Gesamtauführungszeit wird ab 1000 ms in Sekunden angezeigt
+
+
+V3.30             : 4. August 1994 : Binz
+   Erledigt:
+      Bei Eingabe eines fehlerhaften Pattern in Preferences lief
+      AProf in eine Endlosschleife.
+      Umstellung des Preferences Dialogs.
+
+   Neu:
+      Alle Dialoge wurden mit Help-Buttons versehen.
+
+   Sonstiges:
+      Release morgen, alles klar :)
+
+
+V3.28             : 1. August 1994 : Binz
+   Erledigt:
+      Wenn das erste Symbol eines Profilees nicht aktiv ist (bei Manx
+      z.B. .begin) dann wird die Abschlussbehandlung nicht durchgeführt.
+      D.h., daß _main hitcount = 0, Zeit = 0!!
+
+      Lösung: Breakpoint am Programmausgang muss immer gesetzt sein.
+              Darf nicht von evtl. def. Pattern oder SafeProfiling
+              abgeschaltet werden koennen.
+              Eine Möglichkeit der Implementierung wäre das Einfügen
+              eines Dummy-Symbols für die erste gültige Adresse des
+              ersten Hunks.
+
+      => Alles gelöst. Wenn kein Breakpoint am Programmeingang sitzt,
+      dann wird einer eingefügt (*ENTRY*).
+
+      Wenn AProf von der WB gestartet wurde und damit eine Shell
+      Umgebung eingerichtet hat, dann wurde beim Ausführen eines
+      Kommandos der Text des Kommandos nicht ausgegeben, da für
+      C stdout nicht initialisiert war und printf verwendet wurde.
+      Jetzt wird Amiga DOS's FPuts() bemüht.
+
+
+V3.27             : 31. Juli 1994 : Binz
+      Neu:
+        Im AProf Preferences Requester kann die aktuelle Einstellung
+        gesichert werden.
+
+      Sonstiges:
+        Release 3.30 ist für Freitag geplant. Freigabe einer Version
+        für Bundle mit Amiga E 3.0.
+
+
+V3.264            : 28. Juli 1994 : Binz
+      Erledigt:
+        Der Bug, der beim Start von der Workbench einen Guru auslöste,
+        wenn SetProgramName() aufgerufen wurde, ist behoben. Ich hatte
+        vergessen, die neue Cli-Struktur in einen BPTR zu wandeln, bevor
+        ich sie in die Prozessstruktur zuwies. Gnah...
+
+      Sonstiges:
+        Tja, das mit Maxon... Ich hab diesen Typen nie erreicht, bin aber
+        zu faul, ihm zu schreiben, wie Jens G. vorgeschlagen hat. Dann
+        lassmers halt. Commodore International hat sowieso vor einigen
+        Monaten pleite gemacht. Wer weiß wie langs den Amiga noch gibt.
+        Ich steig jedenfalls bei der nächsten Gelegenheit auffen PC um :(
+
+V3.263 == V3.26c  : 26. März 1994 : Binz
+      Neu
+        Beginn der Entwicklung eines AProf Installer Scripts zur Unter-
+        stützung bei Neuinstallation, Update und Deinstallation von AProf.
+        (File: AProf Manager)
+        Deswegen auch Übergang zu numerischem Versionssystem, der
+        Installer versteht nur Commodorekonforme Versionstags.
+
+        Workbench Support eingebaut. Wenn der Profiler von der Workbench
+        gestartet wird, legt er sich eine eigene CLI Struktur an. Damit
+        erfolgt kein Absturz (bzw. Deadlock) mehr, da die Startup-
+        module der getesteten Compiler auf Kommandozeilenstart schalten,
+        wenn eine Cli-Struktur definiert ist.
+
+        Allerdings, wie solls auch anders sein, das Teil ist fuckin'
+        buggy. Nachdem ich schon einige Bugs im dos.library AllocDosObj()
+        gefunden habe (workaround aus Usenet) stuerzt Aprof immer noch ab,
+        sobald eine Datei von der Workbench geladen wird. Möglicherweise
+        an der Stelle, wo er sich in den Profilee umbenennt.
+
+        Dieser Code wird nur eingebunden, wenn SIM_CLI definiert ist.
+
+      Erledigt:
+        Enforcer Hit aus FreeProfileBase() in p3load.c entfernt. War bereits
+        mit TODO gekennzeichnet.
+
+        Bei überlangen Symboltabellen ist noch ein Haken in den Such-
+        routinen (z.B. Clisp: Bei Suche nach 'strlen' wird strlen in
+        der ersten Zeile angezeigt. War Fehler bei Indizierung des
+        Textarrays - Zugriff auf Element -1.
+
+      Sonstiges:
+        Ich werde versuchen, den Profiler Maxon zu verkaufen. Laut Jens
+        Gelhar, dem Entwickler des C++ Compilers, haben die schon mal
+        versucht einen Profiler zu entwickeln, aber nie Leute gefunden,
+        die das auch durchziehen :).
+
+V3.26b  : 24. Januar 1994 ; Binz
+   Fehlerabfragen beim Sichern einer Datei eingefügt. Damit werden
+   jetzt Fehlermeldungen ausgegeben, wenn eine Diskette voll ist,
+   ein sonstiger Schreibfehler passiert oder beim Drucken der Drucker
+   sich nicht meldet (weil er abgeschaltet ist).
+
+   Die Fensterdimensionen des Huptfensters werden jetzt gegen die in
+   p3main.c definierten Dimensionen verglichen und nur verwendet,
+   wenn sie größer sind.
+
+V3.26a   : 27. Dezember 1993 : Binz
+   In den Menüs war Amiga-P zweimal belegt (Print/Prefs). Print kann
+   nur noch über das Menü gestartet werden.
+
+V3.26   : 5. November 1993 : Binz
+   Nachdem Version 3.25a mit Maxon C++ zwar läuft, aber besonders bei
+   sehr großen Dateien (CLisp) abstürzt, habe ich mich dazu entschlossen,
+   nochmal einen Rückzug nach Aztec C zu unternehmen.
+   Die neue Versionsnummer deshalb, weil inzwischen einige Änderungen
+   stattgefunden haben, die ich nicht verlieren will.
+   Heute habe ich erstmal mit dem updaten der Manx Libraries begonnen,
+   da dort dich einige Anachronismen vorkamen (Verwendung der Exec Fkt.
+   OpenOldLibrary(), Versuch ein Consolenfenster auf der Workbench zu
+   öffnen).
+   Wegen dem Fehler in den Anzeigefunktionen, der von verschiedenen
+   Seiten gemeldet wurde, werde ich in der neuen Version auf die
+   Manx Floating Point Bibliotheken zurückgreifen (hoffentlich
+   behebt das den Fehler).
+
+   Umsetzung wieder komplett. Läuft wieder genauso stabil wie pre3.24.
+   Textverwaltung (bmem.c) wird jetzt durch p3text.c ersetzt.
+
+   Problem aufgetreten: Der Manx realloc() hat auch manchmal seine
+   Probleme. Ein Fehler der aufgetreten ist, war das Speicherblöcke
+   den Inhalt der ersten 1 bis 3 Bytes verlieren. Allerdings habe ich
+   den Grund noch nicht finden können.
+
+   Der Fehler des realloc ist durch einen freundlichen Menschen aus
+   dem Usenet behoben worden. Leider hat er mir keinen Namen genannt.
+
+V3.25a   : 10. Oktober 1993 : Binz
+   Reihenfolge von Patternkontrolle und Unmangling in p3symdis.c getauscht.
+   Die Druckfunktion kontrolliert jetzt, ob Daten vorhanden sind.
+   Anpassung der minimalen Fensterhöhe an Fontgröße (p3gui.c).
+
+   Kleine Unsauberkeit in DspMessage(): Wenn Fenster bei Ausgabe einer
+   Message nicht aktiv war, dann wurde die falsche Farbe für Löschen
+   des Ausgabebereichs verwendet. Geändert.
+
+   Definition von STX_BUFFER in p3main.c entfernt, bzw. durch PRO_BUFFER
+   ersetzt. Definition von char *buffer[256] in p3main.c entfernt, da
+   nicht verwendet.
+
+V3.25      : 28. September 1993 : Binz
+   Umsetzung Schritt für Schritt nach Maxon C++. Geht nicht ganz ohne
+   Haken und Ösen. Compiler und zugehöriger Assembler haben noch einige
+   Bugs, wobei sich der Compiler in der Version 1.1 schon arg gebessert
+   hat.
+
+   FIXME: In V3.24a ist noch ein Fehler: In p3symdis.c wird das Pattern
+   vor dem Unmangling auf das Symbol angewendet. Wird behoben, wenn
+   die Portierung geklappt hat.
+
+   Es wird versucht, zu drucken, obwohl kein Text im Speicher ist.
+
+   Die minimale Fensterhöhe muß an die Anzeigegröße angepasst werden.
+
+   Wenn ein Programm geladen ist, und versucht wird ein anderes zu
+   laden, das keinen SymbolHunk enthält, dann werden zwar die Daten
+   des geladenen Programmes weiterhin dargestellt, die Segmentliste
+   allerdings freigegeben.  Das führt dazu, daß einige Funktionen
+   'No program loaded' melden, obwohl das Display funktioniert.
+
+   Da der qsort() der Maxon Linkbibliothek kaputt ist, musste ich
+   einen eigenen implementieren (dabei hab ich das endlich ver-
+   standen). Dieser hat allerdings den Fehler, daß er, wenn das
+   Sortiermerkmal für alle Elemente gleich ist, per Rekursion den
+   Stack quer durch den HS schießt und nie wieder zurückkehrt.
+
+
+V3.24a   : 15. August 1993 : Binz
+   Durch kombinierte Verwendung der IDCMP-Messages VANILLAKEY und RAWKEY
+   muß die Funktion RawKeyConvert nicht mehr verwendet werden.
+   DspBlockWin() wird nicht mehr verwendet.
+   DspMessage() umprogrammiert. In der neuen Version muß RefreshWindowFrame()
+   nicht mehr verwendet werden. 5 Stunden später: Jetzt erst funktioniert
+   dieses Höllenteil so wie _ich_ es will!
+
+V3.24   : 8. August 1993 : Binz
+   Möglichkeit zum Save Profiling eingebaut. Einige Tests haben die Praxis-
+   tauglichkeit dieser Option bewiesen (Gcc)
+   Wegen der Erweiterung mußten die Traphandler nochmal umgebaut werden.
+   Ich muß mir mal eine Möglichkeit überlegen, einen einigermaßen sauberen
+   Abbruch hinzulegen, wenn in den Traphandlern was schief geht. Problem
+   dabei: Ich muß aus dem Supervisormode mit Supervisorstack in den User-
+   mode mit Userstack zurückschalten. Außerdem kann das so unterbrochene
+   Programm seine Resourcen nicht freigeben.
+
+   Die Sources zu bmem.o sind verlorengegangen! Muß nochmal implementiert werden!
+
+
+V3.23c : 31. Juli 1993 : Binz
+   Im Formatstring für die dargestellten Zeilen in p3symdis.c wurden für
+   den Symbolname zwei Zeichen mehr zugelassen. Dadurch mußten die Offsets
+   ind den Sortierroutinen ebenfalls angepasst werden.
+   Schnittstelle zu Rexx-Unmangler eingebaut. Rexx Fehlertexte werden von Rexx
+   besorgt. Neuer ToolType RXFUNC erlaubt Angabe eines Unmanglers.
+   Allerdings ist die Zusammenarbeit mit Rexx _sau_langsam!
+
+V3.23b   :    29. Juli 1993 : Binz
+   Im Hauptfenster werden die Einstellungen nur noch angezeigt. AProf.guide
+   teilweise überarbeitet.
+   Temporäre Statusvariablen in p3pattern.c (p3prefs.c) wurden nicht
+   initialisiert.
+
+V3.23a   :   27. Juli 1993 : Binz
+   SetPattern() nach p3symdis.c verlegt. Destruktor in p3symdis.c eingeführt
+   Alle Einstellungen nach p3prefs.c verlegt. Die Gadgets im Hauptfenster müssen
+   noch ausgebaut werden.
+   AProf.guide muß überarbeitet werden.
+
+V3.23      :   27. Juli 1993 : Binz
+   Sortierung in p3symdis.c integriert (=> Auch als ToolType zu setzen).
+   Zeiteinheiten, Modus, Sortierung, Pattern sind in p3pattern.c ver-
+   änderbar (p3pattern.c sollte in p3prefs.c umbenannt werden).
+
+
+V3.22      :  25. Juli 1993 : Binz
+   ToolType PATTERN eingebaut.
+   Kleinere Optimierungen in p3trap.asm.
+   Rexx Script erledigt ab dieser Version das Erstellen und Aktualisieren
+   der Archive (save.rexx). Dazu wurde die Definition der Versionsnummer
+   und des Pogrammnamens nach version.h verlegt. Diese Datei wird vom
+   ARexx-Script automatisch gelesen.
+   Subwindows (Search/Pattern/Comline) öffnen jetzt immer im AProf
+   Hauptwindow. Ausserdem wird Positionskorrektur durchgeführt.
+   Symbol Pattern in Preferences umbenannt.
+   Textfehler behoben: Statt 'Symbol pattern' stand 'File Pattern' im
+   Requester
+
+
+V3.21c   :  20. Juli 1993 : Binz
+   Bug in p3search.c behoben (Wenn ein String nicht gefunden wurde, dann
+   erfolgte kein Abbruch).
+
+   p3trap.asm bekommt jetzt alle TrapInformationen über die Funktion
+   InitTrap(). Es werden keine globalen Variablen mehr verwendet.
+
+   ToolType PERSISTENCE wurde wieder entfernt (p3main.c). Es macht zu
+   viel Geschisse, diese Datenstrukturen gültig zu halten.
+
+   ToolType PMODE zur Einstellung des profiling Mode und TUNITS zur
+   Einstellung der Anzeigeeinheit eingebaut.
+
+   Änderung: Wenn man die CycleGadgets betätigt, dann wird die Anzeige
+   nicht mehr automatisch umgerechnet bzw. auf Null gestellt. Möglicher-
+   weise wärs geschickter, den alten Zustand beizubehalten und die
+   Funktionen, die die Einstellungen weitergeben in p3gui.c mit den
+   nötigen Initialisierungen einzubauen?
+
+V3.21b   :   19. Juli 1993 : Binz
+   Modul p3search ein bischen überarbeitet.
+   Initialisierung der Anzeigeeinheit durch ToolType TUNITS ist möglich
+
+V3.21a   :   18. Juli 1993 : Binz
+   Alle Requester stellen sich automatisch auf den verwendeten Font ein.
+   Dazu wurde eine Funktion implementiert, die die Gadgets auf Zeilen
+   abbildet und die Fensterhöhe berechnet.
+
+V3.21      :   15. Juli 1993 : Binz
+   Prüfungen sind noch nicht vorbei!
+   Die Größe des Hashtable ist jetzt wirklich eine Primzahl.
+   Erste Anpassungen an alle möglichen Bildschirmgrössen und Fonts.
+   Funktion ImageHeight() in dsp.c zu diesem Zweck eingeführt.
+   Die IDCMP_Gadget Messages sind nicht mehr abhängig vom UserID Feld.
+   Bisher war dort die IDCMP_Message codiert, auf die das Gadget
+   reagiert, dieses Feld ist jetzt frei.
+   In p3main.c ist beim desaktivieren des Hilfesystems ein Fehler
+   unterlaufen. (Es wurde nicht kontrolliert ob man am Ende der Menü-
+   leiste angekommen ist, bevor man über den Zeiger zugreift)
+
+
+V3.20a   :  10. Juni 1993 : Binz
+   Fehler in Windowgröße und Position in Freigabe (logisch!)
+   640 Pixel Fensterbreite minimal! (Gößer darfs werden!)
+   Probleme mit Pattern #? (nichts wird angezeigt) behoben.
+   ToolType PERSISTENT=(ON|OFF) eingebaut. Fenstergröße wird bei
+   Programmende gesichert.
+   Erstellen des Pfades zum Startverzeichnis wird von neuer Funktion
+   p3funcs.c.p3GetHomePath( suffix ) übernommen.
+   Sortierfunktionen eingebaut.
+   In dsp.c einige Funktionen optimiert. (kleinere Änderungen)
+   Die maximale Kommandozeilenlänge beträgt jetzt 256 Zeichen (Mark Cassidy)
+   Enforcer hit in Aufruf von RunCommand() in p3exec.c behoben (Steffen Guttman)
+   Enforcer hit in p3load.c behoben (Steffen Guttman)
+   Debug Code in stralloc() eingebaut, um evtl. Aufrufe mit NULL-Pointer
+   zu finden.
+
+V3.20      :  07. Juni 1993 : Binz
+   Freigegeben auf AmiNet Kaiserslautern ->USA, Schweden, Australien, GB, CH
+
+
+V3.19b   :   03. Juni 1993 : Binz
+   Keine Funktion hängt mehr von der Reihenfolge der Symbole in der
+   Symbolliste ab.
+   Einige kleine Änderungen in p3load.c.
+   Die Help-Taste startet AmigaGuide.
+   Dokumentation nach Englisch übersetzt (ziemlich holprig!).
+   Nachdem alle Mittel versagt haben, um die Gadgetleisten zu clippen, ist
+   das Fenster momentan auf 640 Pixels Breite fixiert! (MUSS GEÄNDERT
+   WERDEN!)
+
+V3.19a   :   30. Mai 1993 : Binz
+   Der erste führende Unterstrich von Symbolnamen wird entfernt.
+   Funktion extract_filename() in p3main.c war fehlerhaft (Rückgabe eines
+   Nullstrings).
+   men_execopt ergab Fehlermeldung, da fälschlicherweise auf
+   das Vorhandensein einer Segmentliste in THE_BASE geprüft
+   wurde.
+   Funktion getwindim() in p3main.c sucht das Icon jetzt in dem
+   Verzeichnis, aus dem der Profiler gestartet wurde.
+   Fehlermeldungen werden im verbreiterten Rahmen unten am Window
+   angezeigt.
+   Symbollisten werden hunkweise sortiert und Adresskollisionen
+   (zwei oder mehr Symbole haben die falsche Adresse) werden ent-
+   fernt (DICE läuft).
+
+V3.19      :   27. Mai 1993 : Binz
+   Anzeige der Gesamtausführungszeit nach jedem Profilelauf im Gadget-
+   bereich.  Symbolpattern sauber integriert. Alle benötigten Puffer
+   werden dynamisch besorgt.
+   Parameterübergabe an Profilee hat ein Leerzeichen angehängt ->
+   Maxon Cpuffpuff hat sich verschluckt
+
+
+V3.18      :   27. Mai 1993 : Binz
+   Dokumentation auf AmigaGuide-Format umgestellt. Schnittstelle zu
+   AmigaGuide in AProf integriert.
+
+
+V3.17a   :   20. Mai 1993 : Binz
+   Gadgetleiste für schnellen Zugriff auf Menüfunktionen integriert
+   Symbolfilterpattern wird angezeigt.
+   StripB, Sym, Seg sind fertig. (Code recycling)
+   Der Traphandler führt ein CacheClear durch (68040)
+
+V3.17      :   20. Mai 1993 : Binz
+   'Save as...' Menüpunkt implementiert und entwanzt (zwangsläufig)
+   dsp.c in makefile aufgenommen
+   Änderungen kosmetischer Natur vorgenommen:
+      Scroller Gadget verschmälert und in die Mitte des rechten Randes
+      Dsp verwendet nur noch Boopsi-Gadgets
+      Volle Breite des Window wird genutzt
+
+
+V3.16c   :   03. Mai 1993 : Binz
+   Kleinere Änderungen: Bei Betätigen der Gadgets für Profilemode
+   und Anzeigemodus werden neue Displays erzeugt.
+
+V3.16b   :   02. Mai 1993 : Binz
+   C-Traphandler für Zeitmessungen exklusive Unterfunktionen neu
+   implementiert.
+   Tests mit rekursiven Funktionen durchgeführt. Der Fehler aus
+   3.12 ist nicht zu reproduzieren.
+   Test mit CLisp 4 Beta, übersetzt mit GCC erfolgreich verlaufen
+   (1963 Symbole)
+
+V3.16a   :  01. Mai 1993 :   Binz
+   Funktion für Zeitmessungen inklusive Unterprogramme war fehlerhaft
+   initialisiert.
+
+V3.16      :   28. April 1993 :   Binz
+   Kosmetische Änderungen an der Oberfläche:
+   Funktionstabelle hat Kopfzeile, Gadgets für Wahl des Profile-Modes,
+   Gadget für Wahl der Anzeigeeinheit für die Werte.
+   User kann Profile-Mode wählen: Including / Excluding Times
+
+
+V3.15      :   20. April 1993   :   Binz
+   Ausgabe der Kommandozeile nach stdout vor der Ausführung.
+
+   Fehler von 3.14 behoben.  Eine Multiplikation eines ULONG-Wertes in
+   p3funcs.c.prc_time() verursachte einen Überlauf.
+
+   Fehler von 3.12 nicht behoben!
+
+
+V3.14      :    16. April 1993   :   Binz
+   p3timer.c nochmal vereinfacht. Die beiden Funktionen StartTimeMarkCIA
+   und StopTimeMarkCIA verwenden keinen internen Stack mehr, sondern
+   müssen von der Applikation aus gesteuert werden. Die Zeitwerte werden
+   jetzt im Breakpointstack mitgeführt.
+
+   Noch einen harten Timingfehler entdeckt: nachdem mit dem Programm
+   DUMP ein Hexdump einer großen Datei (z.B. CC) durchgeführt wurde,
+   beträgt die Ausführungszeit für _main(), __main(), .begin() nur noch
+   40%. Ich konnte noch nicht orten, woran das liegen könnte.
+   Messwerte:   dump -o cc      .begin   44.000%   152k
+                dump -o sdb     .begin   13.442%   100k
+                dump -o sdbf    .begin   99.980%    88k
+
+   Außerdem konnte ich den Bug von V3.12 ebenfalls noch nicht finden.
+
+
+V3.13      :   06. April 1993   :   Binz
+   Neue Leseroutinen für Symbolhunk eingebaut.  Jetzt sollten Symbolhunks
+   unabhängig vom Compilerhersteller gelesen werden können.  D.h. es wird
+   erkannt,  ob es sich beim  jeweiligen  Symbol um ein Code- oder Daten-
+   symbol handelt. Dadurch wird die Verarbeitungslogik im Profiler selbst
+   stark vereinfacht.  Außerdem sind  alle für die  Symbolanalyse zustän-
+   digen Funktionen in p3rdsym.c verlagert worden.
+   => Umfangreiche Änderungen in p3load.c/p3rdsym.c
+
+V3.12      :   01. April 1993   :   Binz
+   Timer  komplett  integriert,  sämtliche Messpunkte scheinen zu stimmen
+   Fehler bei Eingabe eines Symbolpatterns behoben
+   Segmentliste in xseglist.asm wurde nicht  auf  Langwortgrenze  gelegt.
+   Behoben durch Aztec Linker Option +a.
+   Fehler in HandleFixBreak()  behoben - Es erfolgten Zugriffe ausserhalb
+   des Breakpointstacks.
+
+   Fehler  in  Timerroutinen:  bei Berechnung des Prozentualen Anteils an
+   der Gesamtlaufzeit treten beim Programm XLisp  2.02 Prozentzahlen  von
+   weit über 100% auf.  Bis jetzt  hab  ich noch keine Idee, was das sein
+   könnte.
+
+V3.11b   :   30. März 1993   :    Binz
+   Timerroutinen wieder eingebaut - Nochmal größere Umstellungen im Timer
+   Fehler in Breakpointroutinen behoben - Funktionseinsprünge  durch  jmp
+   wurden falsch behandelt.
+
+V3.11a   :   25. März 1993   :   Binz
+   Timerroutinen wieder entfernt.
+
+   Problem aus 3.11 mit Einsprung aus ROM durch Einfügen eines Dummy-Seg-
+   ments gelöst,  das mit jsr  die  eigentliche Segmentliste anspringt ->
+   Dadurch kann Breakpoint ins RAM gesetzt werden.
+
+   Problem mit  Lesen der Segmentliste behoben  ->  Aztec C  Symbollisten
+   werden im Large- und Small memory model gelesen.
+
+V3.11      :   05. März 1993   :   Binz
+   Mehrfache Ausführung mit Auflaufen der Zeitwerte möglich.  Erste Tests
+   mit Maxon C++ Programmen erfolgreich. Maxon C++ Symbollisten  scheinen
+   jedoch manchmal fehlerhaft erstellt zu werden.
+   Patternbehandlung für Symbole eingebaut.
+   Timerroutinen integriert.  Dabei trat  der Fehler auf, daß anscheinend
+   die Anzahl der Fixtraps nicht parallel zur Anzahl der TempTraps läuft.
+   Den Grund kann ich nicht angeben.  Möglicherweise hat es was  mit  dem
+   Aufruf der Funktion exit() im startup-Code zu tun.
+   Problem erkannt: Es gibt in der Manx Bibliothek einige Funktionen, die
+   nicht mit RTS verlassen  werden,  sondern  mit  JMP  sofort  auf  eine
+   weitere Funktion aufspringen. Auf diese Weise  werden  doppelte  TEMP-
+   Traps gesetzt - ét voilá! - wir haben einen Stackeintrag im Timer  und
+   im Breakpointsystem, der nie wieder entfernt wird.
+   Weiteres Problem:
+   Der Einsprung in den Slave erfolgt bei  RunCommand() aus dem ROM.  Da-
+   durch ist es nicht möglich, den abschliessenden Breakpoint zu setzen.
+
+V3.10      :  03. März 1993   :   Binz
+   Neuer Traphandler läuft - sauschnell
+   Neues Timermodul - superschnell
+   Probleme mit Registersicherung in Traphandler behoben
+
+V3.00    :   Februar 1993   :   Binz
+   Umsetzung von Version 2.60 (nagelneu geschrieben, neues Oberflächen-
+   konzept, nahezu kugelsicheres Breakpointsystem (hoffentlich))
+
+
+V2.00      : 1992
+   Neues Trapsystem. Funktioniert zwar, basiert jedoch auf A-Line Traps,
+   die jedoch durch einen Fehler in WB 2.04 nicht mehr an den Traphandler
+   übergeben werden. Benutzeroberfläche in Sparausführung vorhanden.
+
+
+
+V1.00   :   1991
+   Profiler besteht noch aus einer Handvoll von Kommandozeilenutilities.
+   WB 1.3 zwingt zu einigen haarsträubenden Kunstgriffen.
+   Trapsystem unflexibel, funktioniert nie richtig.
+
+
+
+***********************
+Mögliche Erweiterungen:
+
+A) Kollisionen von Symboladressen können mit einer standardmäßigen
+   Implementierung eines Wörterbuchalgorithmus eleganter festgestellt
+   werden (Hashing/Baum). Gegen die Lösung als Baum sprechen die vor-
+   sortierten Symbollisten, die manche Compiler erzeugen.
+
+B) Es gibt Probleme mit Zwischenlabels. Anscheinend linkt alle Welt
+   irgenwelchen selbstgestrickten Assemblercode dazu, der hübsch mit
+   Zwischenlabels garniert ist und diese auch noch exportiert.
+
+   Eine Lösung dazu hab ich bereits im Kopf: Wenn die Rücksprungadresse
+   in p3trap.asm geholt wird, dann kann man als erstes mal abchecken,
+   ob sie gerade ist (Wie das auf 68020+ aussieht, weis ich nicht).
+   Ist das der Fall, kann man noch kucken, ob die Adresse innerhalb eines
+   Code-Hunk liegt (Segmentliste hab ich ja).
+
+   Damit kann man nicht alle Probleme beheben (letztes Element auf dem
+   Stack ist Zeiger auf eine Funktion -> Bong!), aber ich glaube
+   in nahezu 99% aller Fälle sollte das wie geschmiert laufen!
+
+   Nachteil: braucht halt schon wieder Zeit im Traphandler.
+
+   <== Bis hierher ab Version 3.24 realisiert ==
+
+   Zusatz: Um ganz sicher zu gehen, kann man auch noch abchecken, ob der
+   Befehl an der Adresse Return-2 ein jsr oder jmp ist
+
+
+C) Vielleicht ist es möglich, die Fliesskommazahlen in p3timer.c und
+   p3symdis.c durch Fixkommazahlen zu ersetzen?
+
+D) Ersetzen des Custom Traphandlers durch eine Funktion, die die Verteilung
+   der Traps nach Nummern übernimmt. Dadurch hätte ich die Möglichkeit,
+   die Traphandler komplett in C zu schreiben.
+
+E) Nicht nur im Bezug auf den Profiler - ConsoleWindow Klasse in C++ definieren
+
+F) Wenn eine Funktion keinen Sinn macht, dann sollte sie nicht mehr wählbar
+   sein. (z.B. muß 'No Program loaded' nicht mehr angezeigt werden)
+
+G) Nur mal gagweise: Um reverse Engineering zu verhindern, könnte man den Trace
+   trap umbiegen!
+
+H) Pivotelement im QuickSort nicht fix aus der Mitte des Array nehmen, sondern
+   erstes, letztes und mittleres Element einbeziehen.
+
+I) Initialisierungsfunktionen in den Modulen durch eine spezielle Klasse
+   realisieren:
+   Dummy Klasse, bzw. Superklasse definieren, die virtuelle Kon- bzw. De-
+   struktoren besitzt. Diese in jedem Modul ableiten und durch die für
+   das aktuelle Modul notwendigen Init/Exit-Funktionen überladen.
+   Die beiden anderen Standardmethoden (Zuweisung und Copy) durch Dummy-
+   Funktionen definieren.
+   (Leider weiß ich nicht, ob das so überhaupt funktioniert)
+
+E) Um die Rexx Kommunikation zu beschleunigen, könnte man das angegebene
+   Rexx-Programm komplett einlesen und als quoted commandline ausfuehren
+   lassen.
+
+F) Iconize Funktion einbauen.
+
+G) Profiling Mode neu implementieren. Drei Modi kommen mir in den Sinn:
+
+   o Nur Breakpoints. Stellt keine Anforderungen ans System und
+     sollte somit der mit den meisten Compilern kompatible Modus
+     werden (Mehrere Threads, seltsame startups, ...).
+   o Breakpoints + Timing. Wie bis jetzt implementiert.
+   o Passiver Modus. Die Implementierung könnte nach meinem aktuellem
+     Wissen hinhauen (Exec exceptions...)
+

@@ -1,0 +1,133 @@
+;;; $RCSfile: AProf_Install,v $
+;;;
+;;; Installation of AProf
+;;;
+;;; $Revision: 1.1.1.1 $ $Date: 2002/05/31 23:15:57 $
+
+
+
+;;;
+;;; File copy - used from update and install
+;;;
+
+(procedure file-copy
+
+   ; Copying all the stuff
+   (copyfiles
+      (prompt "Installing AProf Version to " @default-dest)               
+      (help "The files are copied to the specified directory")
+      (source (pathonly @icon))
+      (dest @default-dest)
+      (all)
+      (files)
+      (optional force)))
+
+
+
+;;;
+;;; Installation procedure
+;;;
+(procedure install-aprof
+            
+   (set @default-dest
+      (askdir
+         (prompt "Select target directory for installation")
+         (help "Select a directory where the installer can "
+               "copy the files from the AProf distribution "
+               "disk.  For your convenience this directory "
+               "should be included in the PATH, although it "
+               "does not have to.")
+      (default @default-dest)))
+
+   (file-copy)
+
+   (if
+      (askbool 
+         (prompt "AProf successfully installed.")
+         (help "No help...")
+         (default 1)
+         (choices "Exit" "Main menu"))
+
+      (exit (quiet))))
+
+
+
+
+
+;;;
+;;; Update procedure
+;;;
+(procedure update-aprof
+
+   (set @default-dest
+      (askfile
+         (prompt "Select AProf executable to update")
+         (help "Select the installed copy of AProf you want to update.")
+      (default @default-dest)))
+
+   (if (< (getversion (tackon (pathonly @icon) "AProf"))
+          (getversion @default-dest))
+      ;TODO
+      (message "Newer version of AProf installed!")
+      (file-copy))
+
+   (if
+      (askbool 
+         (prompt "AProf successfully updated.")
+         (help "No help...")
+         (default 1)
+         (choices "Exit" "Main menu"))
+
+      (exit (quiet))))
+
+
+
+
+;;;
+;;; Uninstall aprof
+;;;
+(procedure uninstall-aprof
+   (askbool
+      (prompt "Uninstall: Wählen Sie:")
+      (help "No help!")
+      (default 0)
+      (choices "Beenden..." "...oder Beenden?")))
+
+
+
+
+
+;;;
+;;; Main loop
+;;;
+
+(welcome "Welcome to the AProf installation utility")
+
+;; need icon information
+(if (= @icon "")
+   (exit "Please start installation script from Workbench"))
+
+;prevent endless loops :)
+(set loop-count 5)
+
+(while loop-count
+   (set todo
+      (askchoice
+         (prompt "What do you want to do?")
+
+         (help "Select a function you want to perform.\n\n"
+               " o Install\n"
+               "     For first time installation of AProf\n"
+               " o Update\n"
+               "     For updating an installed Version of AProf\n"
+               " o Uninstall\n"
+               "     For removing an installed version of AProf\n")
+
+         (choices "Install AProf" "Update AProf" "Uninstall AProf")))
+
+   (select todo
+      (install-aprof) 
+      (update-aprof) 
+      (uninstall-aprof))
+
+   (set loop-count (- loop-count 1)))
