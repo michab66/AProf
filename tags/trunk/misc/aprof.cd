@@ -1,0 +1,90 @@
+;;;
+;;; $RCSfile: aprof.cd,v $$
+;;;
+;;; Catalogdatei für Textübersetzungen
+;;;
+;;; Sprache: english
+;;;
+#catalogname AProf.cd
+#function GetString
+#language english
+#version 330
+;;
+;; Menu 'Files'
+;;
+MenuFiles (//)
+Files
+;
+MenuFilesOpen (//)
+Open...
+;
+MenuFilesSave (//)
+Save
+;
+MenuFilesSaveAs (//)
+Save as...
+;
+MenuFilesReset (//)
+Reset
+;
+MenuFilesPrint (//)
+Print
+;
+MenuFilesExit (//)
+Exit
+;;
+;; Menu 'Action'
+;;
+MenuAction (//)
+Action
+;
+MenuActionStart (//)
+Start...
+;;
+;; Menu 'Data'
+;;
+MenuData (//)
+Data
+;
+MenuDataExec (//)
+Exec details ...
+;
+MenuDataPrefs (//)
+Preferences...
+;;
+;; Menu 'Move'
+;;
+MenuMove (//)
+Move
+;
+MenuMoveFind  (//)
+Find
+;
+MenuMoveFNext (//)
+Find next
+;
+MenuMoveTop (//)
+Top
+;
+MenuMoveBottom (//)
+Bottom
+;
+MenuMoveUp (//)
+Page up
+;
+MenuMoveDown (//)
+Page down
+;;
+;; Menu 'Misc'
+;;
+MenuMisc (//)
+Misc
+;
+MenuMiscHelp (//)
+Help...
+;
+MenuMiscRefresh (//)
+Refresh window...
+;
+MenuMiscAbout (//)
+About...

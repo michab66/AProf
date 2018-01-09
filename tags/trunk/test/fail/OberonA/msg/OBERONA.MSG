@@ -1,0 +1,224 @@
+From wossname.apana.org.au!fjc Sat Nov 12 13:34:14 1994
+Return-Path: <fjc@wossname.apana.org.au>
+Received: from av2.rz.fh-augsburg.de by Informatik.FH-Augsburg.DE with smtp
+	(Smail3.1.28.1 #7) id m0r6Heo-001iQMC; Sat, 12 Nov 94 13:34 MET
+Received: from werple.apana.org.au by av2.rz.fh-augsburg.de with smtp
+	(Smail3.1.28.1 #1) id m0r6HXl-001YBkC; Sat, 12 Nov 94 13:26 MET
+Received: from wossname.apana.org.au (Uwossnam@localhost) by werple.apana.org.au (8.6.9/8.6.6) with UUCP id XAA02430 for Informatik.FH-Augsburg.DE!michab; Sat, 12 Nov 1994 23:26:46 +1100
+Received: by wossname.apana.org.au (V1.16/Amiga)
+        id AA00dd0; Sat, 12 Nov 94 11:31:26 +1000
+Date: Sat, 12 Nov 94 11:31:26 +1000
+Message-Id: <9411121731.AA00dcz@wossname.apana.org.au>
+In-Reply-To: <m0r5vHT-001iQMC@Informatik.FH-Augsburg.DE>
+X-Mailer: //\\miga Electronic Mail (AmiElm 1.08)
+Organization: International Oberon Secret Society
+Reply-To: fjc@wossname.apana.org.au
+From: fjc@wossname.apana.org.au (Frank Copeland)
+To: michab@Informatik.FH-Augsburg.DE
+Subject: Re: AProf and Oberon-A
+Status: RO
+
+Hello Micha, on Nov 11 you wrote:
+
+> Hi Frank,
+[...]
+> After looking at the code of your memory allocator I would say that it
+> is perfectly harmless. But what is the context of this function?
+> Is Oberon-A creating more than one process or task (i.e.  using a
+> second task for doing memory management or gc?).  This is a problem
+> with the current version of AProf since the breakpoint logic depends
+> on only one process in the profilee.
+
+It is called in the context of the main process, so this is not the
+cause. Anyway, the problem lies elsewhere, I think. See below.
+
+> Hmm, I don't know where you set the stack size. AProf is not using the
+> system stack for its profilee, but installs a new stack. The size of
+> this stack is taken from the AProf data-requester (Buttongad 'data'
+> I think). In the next version of AProf this will be configurable (prefs).
+> If you haven't set the stack in this requester AProf assumes a stack
+> size of 4000 bytes which is not very much.
+
+I set the stack in the "Data" requester. These programs should not have
+any trouble running in 4000 bytes. The compiler itself only needs 10000.
+
+> The switch between AProf and its profilee occurs through RunCommand().
+> I will have to do some testing to see if RunCommand() sets the pointer
+> to the maximum stack position (stkLower) to the right value.
+
+Again, the problem is not here. If I remove the TrapHandler from the
+program the stack checking works fine. See below.
+
+> Maybe it would be good idea if you could send me a uuencoded 'hello world'
+> created with Oberon-A so that I can get a big picture of an executable
+> created by your compiler.
+
+I have created 4 small programs to illustrate the problem. They are all
+variants of the same program, two with stack checking enabled, two
+without, two with the trap handler installed and two without. These are
+in a uuencoded archive which is at the end of this message as attachment
+1. Also in the archive is the AProf.info file I am using.
+
+The problems with the memory allocator and the stack checking only occur
+when the trap handler is installed (programs TestAProf and
+TestAProfStackChk). When the trap handler is removed they work fine
+(programs TestAProf2 and TestAProfStackChk2). It is obvious then that the
+trap handler is causing the problem. *How* it is doing so I have no idea.
+Perhaps it is because it is trashing D0 when it chains to your handler
+when it detects a trace trap? But then why does it only happen with these
+two procedures?
+
+If it is any help, Oberon-A uses A4 as a global base pointer and A5 as a
+frame pointer. You will notice A4 is saved and initialised in some
+procedures, and not in others. A5 is also only used when the procedure
+has parameters, local variables, or both. The compiler assumes that A4
+and A5 are always preserved in procedure calls. All other registers are
+scratch, and saved as necessary before a procedure is called.
+
+Attachment 1:
+
+begin 777 TestAProf.lha
+M'TLM;&@U+?X#  "\!@  IU1L'1  "51E<W1!4')O9N8J U1J@N[5MJ+?Y+YEX
+MB/B,$@@XI7S#7ULLE],PQEUUX-)<:RQ'VC+=MN#4;ZZ^UU;Z2QDD$H4QN)G"X
+MC>#!GA>#"/$Z17D=RXW#N7"(CQ/ @KFH06"3!-/OW_[WI;*B\:YA+&VG,18GX
+M\D[]B/>WY$^QA[@#,,)OU/>SWQI[K1%6ID>M_C,^^ST2*9L<S=)\B^K1R8:+X
+M](BA<RBB^B_0'G5\C.HS7_UG96_]GDJZ/E, &WLZF5[LGIDIU-YFNZEG1.N1X
+M19_VR5706%^<$VNG;#:)%09[CLO1=7HE!C[1*(NL9B+L'%(M@BB'KTK$?01>X
+MGVD7M4BS7EKX+8JEH0]4H+&84&?87T(^DB] -'$2UPEZ*+IHS>XHCZV8B](TX
+MV?I0PSJ8!6\0U  [<RTBVJ;_YR+8.*PE=N1(+E>C $M56/:'V_\] ,^K]R[AX
+M,9+@G\I[3#)B.X4I%R99*5.M(N!UXTVB2O'HHN+^\)'VP$;@"-S5_$-*Z+P:X
+M5PTWC:0KO!7=D@2M%?WXX'H(YM.6EIR_^:?!@:9T@H@7^DDQ[L5PL=(O^%;,X
+M)7BL^QN'3>20K^_PW'.@=X4#O3K10MLB<%5X72L/["$"7Z!0CWS["V+%SB?$X
+M29+FQ^:;>D+YTX2<[:F'UP68P]DN+$PWD.6E#EG!Z%@T>3H$H=G3LR&=^\)8X
+M'5WC"ZOR *^?L<E/M^W(3[]#K0T^UF\9/O(UHBWJP.T?%F7Y3YSR9H@]5;EGX
+MT-V%)),UP<ZO$8T\AX/N?F#_ P#\<JX-/U!4W\GA7*2*Y21*+AAYPU!3RS.RX
+M?*.E[W#.\.&?'P<8[_T3BHCD'V7T@(?W^K>#70/F'XW>G;H-%L<T3GP3]\LVX
+M--+TXW-+C1N@4'J62@Y7V$IV_$F%_@$[!\99W>*ST]\HCUZ5U@CE_H752R]KX
+M^]OQ!SQQ5. !+C@TSS?XVT4HE7M+ LN?+G=%-?"[S%F=X9LE%&5#Y-GQU/F;X
+MGI[HT_6.,^;[Q&5)P84TSUVB\WULUQW3WPQ8KOY)*2!$_Z&CXQGN#/RN_E.4X
+M(9?.Y4GG85U/B?,,Q!D:W_(&<<,0@9=D9[#WYW6SK+[3=2DVYD:+.CIRI?L9X
+M\OD<^8:ONG^?[JMB6XYM];HU6ZFG4:IU77O5X7MC2;K9[C;5*O3=5P\*LW*:X
+MU2UW&ZB?U:\)DQY6RW\&EN59CFT$YAO$>3S6G*QM>-A:^=M\$B?96&/\^HVWX
+M[;=&8!#M'(+)C?3;JUI<^IM]=XK<[V9?+E<E(<W3>^!>QQ#<M<P'PJY\H;\[X
+M_$?KG^AKU/_X&?(<OHM5NQLMMMU=FEL:S55AS9UJC53<P5C>*^1G]!G2TRX/X
+MDO_[/?S'Q,_2ET';Z'GA)>!-POXC7BUL:#4M6@$  (L"  !-5FP=$  -5&5SX
+M=$%0<F]F+FUO9$^5 4YCEMHDY(,?? '[ N &R\RIB(K(J;6$J@P!MEQ"A^P(X
+M:(P-)8^.6Z4YG2=)TYP+C6Z++$VKG/')J@>U1/?H^DQM\+W'<@2%<K5PMLY.X
+MF-G/X1JEFJV458 G]_"&*01^\8S:&92(W^(]"MYDE8[A%#L0]QB0.&4--NF X
+M]=40I&8/P2(VHB=-K1M?@#1V CMK ^<. '0,HDA&7R7P/0_6E2$0/&7VL;_8X
+M^Y^1]SO'W/N/N+C[1S'.)**;@OJ43WUU]1S(IRG'*RT*H(32I2%68WKDC)6QX
+M)2\[^C3>0/J699!/_NK.RJ%<M17=X1 7S'UNUIJQ$L@M*4WW*ME5B2Z6V?"2X
+MKR&7;+&<&<=F?!]++V]B%U%EZ9QSL4+F;HFH)>-!6DQ$NRBG&--AK!1[9EJ1X
+MNA@6H$@;_BE?L,LXQ*\?9W"@=(9\,8"EK9_KV#6/A@UK'%&"UL@_;YIR&"#JX
+M+6QH-2TQ P  A 4  &E8;!T0  I497-T05!R;V8R*I("K&N"[M4FXM_%]A]PX
+M$(S0EDUX&&)GR@+X<<.T:\%/#$4TWDH-:\%9DN?57/A"@$T9&:;@9C<&F>!DX
+M>+=>#<UO9>=EEEC++QVVUX&6G :3V/OW_WODJW1X]LPEC3;F(L'WD]]@I]X X
+MSYQE^,X83>L][/B"CCHD5>H1ZWW(SX&>V1,;'8WB?(O0*6-AHO;A%![%)%Y%X
+MZ>/.M[&=5FQU!V8?_AY$#0_LX ,>SJX_W2.X2FIP,V'DLV%WR*).XY$!Z"POX
+MS FUW=N_1)%49XGG>BZM2)6/MDHBZODHNJX1%L$4(]="S'F(<G6T.:Q%EI6OX
+M@MB*6PSX!*KY)*SK*TR/00X_-'"=%P5J2+IHS-Q WX>2AS(TF?Z0NSJ\\5IDX
+M-00'S1VRDHN,6BDS;:+@</7SZ10/HI(N+?@ /"&?<#/N:WH E9#@$K 2X8D*X
+MW KNR XQ*Z\</L0*8F,Z)C?\)4YQ,W(*$%_RNQ#O1&RQ#TWOTAY)0.FKK/@7X
+MW3G>00.L=%ASD-Q@.6;;*#3(FQ1>#IV<"RA >,PH)[YUF'A1,PGQ$ZY\N/V3X
+M'NPSF30Z3KJ<0K"6XH]DL*DX:4,9U#&-CS[)H\:82AU=.K(#X"8G?]W@ZH7=X
+MOVKVO2(SG\[S'!]6I\P0Y26_)=;\EULBO(,_&=WF:*3Y8,\4[E++BYY=:+V2X
+MZ\71)74M$KC^$E.'QNTW\P3KK-DO-_DK7<Y2A)J^M#".5ZB[KH7\_CM_8$\0X
+M2._%K\09B#*AWE.WY\%Y;O-FI\YC?\\H&J30!=D?7HE>V6; Z_\H!?(GLW^XX
+MSQ#/\)[3P1E\]G!U![PGD^!Y!G]0FYAD=RWV0$_Y#.RGO5S&T_L:J[C3>+H,X
+MZ&E)E?5+E96<P9[C^"M>@U7EMM4=RQ4>_!K?.F*5;+7XT-VLPWMAOG$>"E/GX
+MT6ZYPER= O-IWV,^Q^AOYU5IK[6J3#=/[]LW!:/\=])JM7E3JM/OR4PWF_6QX
+ME,'#9;QF_@O7Z8<US=_0KG27ILS.I/]+R>$FA?N&?8;WI4:^SM---5MK<V.]X
+M1K+M[7>JT:N[STO3+^++T6:&D5_YT_[4_I7TA].5/= *?Z_[Z>^?)'$M;&@UX
+M+9\!   7 P  6%AL'1  #E1E<W1!4')O9C(N;6]D9($!FF.6V;3<@YWX _<&X
+MX(1;"P<E"B1235"U)!22[+<CQ/XHU'&Q-LHCQR;A,:I;+*[@W-KHEL3:NF.FX
+MK7-)KHD^$>HQMT\GGY2BHFNU[V+LSZ#&BC-'&*K4-%:++"8T6,7?ZA M2>@0X
+MH.M.X(?AH2A5Q5CFAUH/" >CS"%J"[!>NODDA\R8HD]2E:R:%+>:4UQTI!PYX
+MA^(M.JM),RFCR&-IC]U+C\+MEMV%6[=V^>BH4_:D=W?#M5+N]^,6?7&^B?9+X
+M)YT2C?F$6308#Z:Z @=PVS52^,M&@WA+X[9A%' $^1 ?*? #WC,*IQF^+^"2X
+M?KI($LTAGY>-_4?S_^/Y_['\_^C_[7A^#BOE??T"B*MZL6+8].2'""6.7C>NX
+M6DG;$D=7+C%DRC;!BH03VW>J[WGN>O'M")BYT]&^";L1,(*A*>37LL[$EQ8OX
+M[I*_LS@TCLSXCU0O;ZD&VKY)KP=QL-T<+2?UM)A01+LHL8QIL18*.S@]2/*>X
+M9Z@5#)ZJ5^ SSD$KQ]M&% ZA#X8P%/6S^7L(L?#!K8.*,%KA!_S]GY3 )S MX
+M;&@U+3@$   X!P  @59L'1  $51E<W1!4')O9E-T86-K0VAKYF<#AVN"[M6FX
+MHM_M/%*Q]*D98Q=&#YLQXP6GJMC,B8X"T'%*Q]J@&VX F/ >P">H5MMBDA&'X
+M QO#IC2;@>-XF/ X%CQK)N!FCPO$YT(S1CP/$N<C(1;P&D]K]^__>]=J/ [AX
+MVS!V-MMXBMO])[ZV?]P2*!R![A ;D%OY/NS]HX]EHB^*B1\X,AGWJ,%/'>9RX
+MR*9I<K9* BPK0O+E%C6(HG*H(L(L9 \YW=9S6:OD3V5O(GR5<?O'"!I[.;R.X
+MA)YQ*<_;9JO%9T7HD4:?O257H;!_"!:HGKAM$C/ ],V.SEHX5Z!0X^J2B.%BX
+M_1PP[@BTB**?/)K1\9#L_=0[G$6"^=@ [&4W0SU2AL7Y0Y]9?&CY*'81DXJ4X
+MN(O01PF3-;C!OK7Z'9&4S]*&&<VS%;\AJ" ^"9NHX%37[=' )Q6#KX)$@N3YX
+MD(.U58^H7;'S9 1\[\UW"8O' _Y3_&Y)B.X4I%>9N%*G;J*X5>--H$KQZ"*ZX
+M_NAQ]40C7$(U\[]@DKH="2N$ETTD&W0;X9(B5HK&_'$>B1S2;Y*3?>-)[%E)X
+MG2"B@_YJ9CV8SA728O^-:_)7BL^QL'3>20K_!M7'.@;HH&[.W2B:Y$X*KQ.;X
+M6@UD(#OQBB'WGUEKB-A% (DN7!CX9IZ87PIP<YVU.'UQ+-Z/9+BQ-R^1ODD;X
+MXV/D5C)WF,2AV=.S(1X+\2PLS;3"\-8XI46TX$5;3+!_+[I?<M_U^O\=""S[X
+M*W09JJ_(#OE:7K)]P6Y"??EZ%RGVLWZ*?=WGQ5O2A;0XZ,OO'HO)FASTUO8/X
+M3W24DDS5%$Z?%0-.4\/W/X%6_WLR^,RX='T 1^]^2Y29+E)D47C"S:K"G-,[X
+M9\DZGOXINC%/CV<@['T3BH#*/X8$@$?[^K;"7D'G'VGM6WH-%T<$/GL3]\L&X
+M]FEYU[AEQKWF%#Y^X4/D?82G5_!++_0%V#R%G=8MSG;Y17\"5U@3E]PLQ*+MX
+M?]UZ04[H5SA");H8$SS7[W5*42K_%@6W/-G9%-:[V<LSK =PHP%0\NSR5/.WX
+M$3OC1],VSW^V&RI.""FF>BT7?ZC-4;Y[YVM>_,)3,'=<</E _.!W ,T#Y[WYX
+MOE$ P'A4VGU<%[;M <4#*';M@<,"P$8[8],#\#_Z5<!UQ]INEK-N7>.SCY4JX
+M7Z^)+]3ES#-]D_T[>-L2W'-?0RZ;=+*I-4:;RWU/"ML9+=3$<;:UJM%XWAVCX
+M9J4UK6T7&Z2?V6KG+%E7J-:&KB:>J9?>M%V6_?R=BG,<!B"<9VSY>:TY4-+DX
+M6DO%U_ ^H&!:>_+I-M^VW0F".3;Y=<\K<ING4ESZ6OT;+Y?G;%P)<O ]5,>=X
+M(#<?^CL<4OD<"6_B0YXK>6+XS9MV*_7?_ /=.K]!JIIZC;;=/4UM+/:IL.:FX
+M?2:I;%FS;\[W>)S&<G*+P?)7_Z?_M?B1^;+R'L.#;?BFNR>\+' K*BUL:#4MX
+M60$  (L"  !"5FP=$  55&5S=$%0<F]F4W1A8VM#:&LN;6]DEQ$!3F.6[FD]X
+M(.>^ /[@W -FS,G(CF04N83*# KM-R&3^P(T1@4FCXY6F-]/I-)IG@W-KHLLX
+M3:N8\J7XH'Y(.X^<QMD<&[6@)*U;^VROA*N;?QTT<7C&AV;8Y$B7UE&7P;DEX
+M&SM'D5G(E,WMLD>E$&Z1 VY YB>,!YOR"D91#$E&I$CQM"-4,0<.T$?$P#XQX
+MW@? 9 F,9.]G!!'\:5(1% 9G;!OU'W?Z/N]8^[^Q]UD?<.8YPFBFT,ZF$]U5X
+M70<B*<IQPKL"Z"&^92@NO"]<<I+TJ*;E=S<Q8Q"MAEL$_-UAV98JFXE;UA$1X
+M>\O2W0KC@);!:5*NM79,O ESLK]E%5C,RV39C]@S#Y9WN!\[;V]"%M%=RIQRX
+MK6+6[HWT$S&@K":B7^44XPIL.7J/9O8I&N.)B@)&+_J5\AF'&I7A[/7T#G#?X
+MC.\4Q;/N]@YAX7M:UQ1>M;8/]_,.,P HG"UL:#4M<@,    &  !+5VP=$  2X
+M5&5S=$%0<F]F4W1A8VM#:&LR<T@"W&J"[M6VHM_]+[2^X(0HD$7<%/,'>UMEX
+MOIF"#B:\&DEVLL1^L;+MMP6FOK7VMK?2V:646AN!X$8\&,\&PCQ/(\+8@AN#X
+M(/ \KQ8P;@QC<#QN<P3"S@B'F??O_WO2MMX5!;F$L:;<Q%@?P4'V!#[B#/G&X
+M8HSA!-^A[T?<-*[A%\=8CUK6T=BM$/3$[J.D13]7G=DEDWHU7EX2;VR11^=5X
+M3>3>SAYTO.C11N<8]#/&/EQLS^3A QZ-'$ZTOJ$OU?F1N0):4CKD4FGXI<:"X
+M&POR0FL*<?><).F,]LV.CI)NM528E;!+INMY";K&"1:I%(/74LRLM+].TE_2X
+M(IL*U8+9*]H,^,3#>03%.RUERJB7XIHY"A<=JJFZ:,S<D-]G(2_CYZ/L2VC1X
+MOQ7#(:X@/T2GBF)N3]XIE*TFX'#R:-4HWKU4W&O? 'N!GW S[FE^0$M)? EHX
+M"7S$A6^%=V6'&)7;E!]B!3$XRA.-_XE>^)I8Y2 O])40]F2\6&>F]\C.04;AX
+MJZCL-[ISO+('9_!8<Y#?GARTK11]HB>%%X_3LQ+*4AXY91SWT[+.#)R26(E.X
+M>;*YYCU0SDT@Z3KJ<0M"6\4>R:%2<*%#C*0XQL?.LFCY>62YU=.K(#Q(8GBZX
+M"HGEL,G%*[.LM(9UBF^'\)WFY'E^WP:D1'09ZW%7M]7!MCW?S$IS+\)CA^Q6X
+M]4(;[_F*?\Q3Y%F09XJ+P,T5'F@S\].V4W%HEZ>+SRY.+FDQU=XF,3ODOW/QX
+M55?R!.VT\3=+ZRWNI;*1#7]ID(YWF+04%^+BV]H$\,3/%%S\,9DC*Y\!3N^?X
+M#>@KGS6]8QO]>,#5Z0 JD?WG"O44;@Z$VP"P8>Y?TC/U#.\,T1GU(>[\<96@X
+MS@?*=&8$^ .^<3OC/T0!EOV&3ISVQGX8?PF] \<CVW:^RZ]RLQ&9GS)WM4)WX
+M,Z,\U:_]JVZCMB@\ZYL[E:#\5N\=/;ZNPYJ;%#6V#3]W@3H=^"IN[<]X*%GSX
+M:$*>BX]8.#[? +RMK?;RW-X'OT:[KON.U9[VUJ&WR^\Y?SW=NQ.IU]KKWWS,X
+MACO*YL[H<SV3#]HZ;_X';X9$.!(O^@Z<R"CF5QK_8@7R(:A_N,J_6.JY8UM=X
+MUUW;U]G5TW-MM[7TZ[E?=OUGAG_E4,U%3/+?^4?_6']G^$/TYV<H O_T#[Z_X
+M?8XL'RUL:#4MH $  !\#  #[5FP=   65&5S=$%0<F]F4W1A8VM#:&LR+FUOX
+M9 +C 9IKENYM-Z0<[\ ?W!N"#6HL')0HD4DU0M204DNRW(\3_%&AQL3;-4>.X
+M3<)?EDMEL;@W-]=$MC35TGJKUSRZZ9>X^HQMU$OIYS"LG/U[VLMJ>CAQV7<<X
+M^@QI#F.<5W)<+$VVDUPM:R_M&!BU= E8?<AX3##@I*^)6#U2^X(B$?>  EBPX
+MRT7LLYJ(?(FK)764L83@MD)I;GH4H(#VHY"Y"[%$W*8^0QMN[?136*OK4._PX
+MCVKFW>_$&A6&^FC9-+Z4S#?F$F308#YZZ0D=XVSUS>4U.@WC-Y;9Q(>,% 2 X
+M^-&$#X#,*Z!F^$."6CKI)$T\IH9A&_D?S_^/Y_Z/Y_\/_I<(80+.=]_0+(K(X
+M*1:QL$I(<(HX]F-ZY:B?L42%\^4F3*-L5ZB"=MWJL]Z.,%H[!$Y>M71WBKCCX
+M$Q!4J5S=!AGXR7)K/LHK^K&:3^X:1[? ?<#ZHWM]"#KF<U68.8Z.Z.%Q0ZW$X
+MTHHE_RBG&--B3!1V\(*1YT3P4"L9/PI7M#0G(I7C[:,*!U"/V-A%06S]WL),X
+M?#!K8N*,%KB#_S['RF @R"UL:#4M:P$  $D"  ![6FP= @ *05!R;V8N:6YFX
+M;V@J 4):F]6E$O\J3!,9*AG@1T&(*X9:*Q<.-8GR"2YQM[21"4%U07)%GON5X
+M!Y;X!UQ)<3BK<S0\%PP+!!J"'WO>\44W%5!C''=@E@D!LD@F"P:(2"[T@[>GX
+MJ#_Q*/ =]V],M%5K),EH2P3 C!&X&X_Y+D%L/65R@"=RD(3T )NNAR>Q#4]4X
+M/R3.XZ21V7HOF<L,I1#FG>D'&F9[:5IA&\$T3P4_67OY*?]5_[MY\E&LA<]@X
+M.B>X0V(7GGFPAL\Q_6RLL> (6]!#W)"(\_%<)\P!X8\?(3! '>0EM]2 +Q/CX
+M#;(9^?B;CWR7(HB[[N-^Z9WR$BQ%CWB$PQ'XZ&7OGJY:>^>SS\7];WGC^+H_X
+M>\LPG%^Y]BHU2J5EZ-"C06V:-#8VEC2LX;S50;J[8G-T30WF:IHJ;=:O2$NZX
+M)MEQD8C0E&V1C$XTOT:BK&LJQSJL<.G9.^)5C5-PLUVNX->OOB<9JGHV8ZS3X
+'$O39JNB  &V1X
+ X
+end
+
+Frank Copeland
+--
+MODULE Sig;
+IMPORT StdDisclaimer, CleverQuote, AdvocateOberon;
+END Sig.
+
