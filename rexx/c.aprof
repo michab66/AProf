@@ -1,0 +1,21 @@
+/* Dummy C Unmangler
+ *
+ * This demonstrates the basics for AProf unmanglers written in Rexx
+ *
+ * Don't use this in real life, since this is included in AProf
+ * as standard unmangler (No mangler selected in preferences)
+ *
+ * This unmangler removes a leading '_', if one exists
+ */
+ 
+/* Get the symbol name from AProf and put it in 'symnam' */
+parse arg symnam
+
+/* Check if there is a leading '_' */
+if "_" = left( symnam, 1 ) then
+	/* Remove first char */
+	symnam = right( symnam, length( symnam ) -1 )
+
+/* Return result */
+exit symnam
+

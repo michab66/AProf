@@ -1,0 +1,2 @@
+cc -bs qsort1.c
+ln -w -g qsort1.o -lc

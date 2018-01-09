@@ -1,0 +1,189 @@
+/* Aprof unmangler for Maxon C++
+ *
+ * Not very beautiful!
+ *
+ * V3.30
+ */
+
+
+/* Data table */
+
+maxon.1.key = "c"
+maxon.1.typ = "char"
+maxon.1.flg = "std"
+
+maxon.2.key = "s"
+maxon.2.typ = "short"
+maxon.2.flg = "std"
+
+maxon.3.key = "i"
+maxon.3.typ = "int"
+maxon.3.flg = "std"
+
+maxon.4.key = "j"
+maxon.4.typ = "long"
+maxon.4.flg = "std"
+
+maxon.5.key = "l"
+maxon.5.typ = "long long"
+maxon.5.flg = "std"
+
+maxon.6.key = "f"
+maxon.6.typ = "float"
+maxon.6.flg = "std"
+
+maxon.7.key = "d"
+maxon.7.typ = "double"
+maxon.7.flg = "std"
+
+maxon.8.key = "D"
+maxon.8.typ = "long double"
+maxon.8.flg = "std"
+
+maxon.9.key = "v"
+maxon.9.typ = "void"
+maxon.9.flg = "std"
+
+maxon.10.key = "S"
+maxon.10.typ = "signed"
+maxon.10.flg = "std"
+
+maxon.11.key = "U"
+maxon.11.typ = "unsigned"
+maxon.11.flg = "std"
+
+maxon.12.key = "P"
+maxon.12.typ = "*"
+maxon.12.flg = "poi"
+
+maxon.13.key = "R"
+maxon.13.typ = "&"
+maxon.13.flg = "ref"
+
+maxon.14.key = "C"
+maxon.14.typ = "const"
+maxon.14.flg = "att"
+
+maxon.15.key = "V"
+maxon.15.typ = "volatile"
+maxon.15.flg = "att"
+
+maxon.16.key = "A"
+maxon.16.typ = "[]"
+maxon.16.flg = "array"
+
+maxon.17.key = "F"
+maxon.17.typ = "(*)"
+maxon.17.flg = "func"
+
+maxon.18.key = "E"7
+maxon.18.typ = "enum"
+maxon.18.flg = "enum"
+
+maxon.0.key = "numeric"
+maxon.0.typ = "struct"
+maxon.0.flg = "struct"
+
+
+/* Get unmangled symbol */
+parse arg sym
+
+cut = pos( "__", sym );
+
+/* if cut = 0 => no c++ symbol, remove _ */
+if cut = 0 then do
+   if "_" = left( sym, 1 ) then
+      sym = right( sym, length( sym ) -1 );
+   exit sym
+end
+
+/* sym is c++ sym */
+symname = left( sym, cut-1 );
+symargs = right( sym, length( sym ) - cut -1 ); /* mangled arg list */
+
+poi = 0
+ref = 0
+ctype = ""   /* current type */
+arglist = "" /* deststring: char *, int, ... */
+att = 0      /* attribute (volatile, const) */
+
+do while length( symargs ) > 0
+   /* get token */
+   if "NUM" = datatype( left( symargs, 2 ) ) then
+      token = 0
+   else do token = 1 to 18
+      if maxon.token.key = left( symargs, length( maxon.token.key ) ) then
+      break
+   end
+
+   /* bad token */
+   if token = 19 then
+      exit sym
+
+   select
+      /* structures, classes, unions */
+      when maxon.token.flg = "struct" then do
+         /* get length (2 digits) */
+         len = left( symargs, 2 )
+         /* remove length */
+         symargs = right( symargs, length( symargs ) -2 )
+         /* struct type */
+         ctype = "struct" left( symargs, len )
+         /* remove type */
+         symargs = right( symargs, length( symargs ) - len )
+         /* concat pointers */
+         if poi > 0 then do
+            ctype = ctype copies( "*", poi )
+            poi = 0
+         end
+         
+         arglist = arglist || "," ctype
+         
+         ctype = ""
+      end
+
+      when maxon.token.flg = "std" then do
+         symargs = right( symargs, length( symargs ) -1 )
+         
+         ctype = maxon.token.typ
+         if poi > 0 then do
+            if att ~= 0 then 
+               ctype = att ctype copies( "*", poi )
+            else
+               ctype = ctype copies( "*", poi )
+
+            poi = 0
+            att = 0
+         end
+         
+         arglist = arglist || "," ctype
+         
+         ctype = ""
+      end
+      
+      when maxon.token.flg = "poi" then do
+         symargs = right( symargs, length( symargs ) -1 )
+         poi = poi +1
+      end
+      
+      when maxon.token.flg = "ref" then do
+         symargs = right( symargs, length( symargs ) -1 )
+         ref = ref +1
+      end
+      
+      when maxon.token.flg = "att" then do
+         symargs = right( symargs, length( symargs ) -1 )
+         att = maxon.token.typ
+      end
+
+      otherwise
+         break
+   end
+end
+
+arglist = strip( arglist, "B", "," )
+
+/* concat symbolname and arglist for return */
+exit symname || "(" || arglist ")"
+
+
